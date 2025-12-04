@@ -2,8 +2,26 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import ContactsCardsContainer from "./ContactsCardsContainer";
 import ContactForm from "./ContactForm";
+import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 export default function ContactsApp() {
+  const [currentUser, setCurrentUser] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const jwtToken = Cookies.get("jwt-authorization");
+    const decodedToken = jwtDecode(jwtToken);
+    console.log(decodedToken);
+    setCurrentUser(decodedToken.username);
+  }, []);
+
+  const handleLogout = () => {
+    Cookies.remove("jwt-authorization");
+    navigate("/");
+  };
+  /////////////////////////////////////////////////////////////////////////////
   //States
   const [contactsData, setContactsData] = useState([]);
   const [formData, setFormData] = useState({
@@ -123,6 +141,8 @@ export default function ContactsApp() {
   //Render
   return (
     <div>
+      <h1>Hello {currentUser}</h1>
+      <button onClick={handleLogout}>Log out</button>
       <ContactForm
         name={formData.name}
         email={formData.email}
